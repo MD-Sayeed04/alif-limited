@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Products</h2>
+<div id="products">
+  {% for p in products %}
+    <div class="product" data-id="{{ p['id'] }}" data-name="{{ p['name'] }}" data-price="{{ p['price'] }}">
+      <h3>{{ p['name'] }}</h3>
+      <p>{{ p['description'] }}</p>
+      <p>Price: ${{ '%.2f'|format(p['price']) }}</p>
+      <button class="add-to-cart">Add to cart</button>
+    </div>
+  {% endfor %}
+</div>
+
+<p><a href="{{ url_for('product', id=products[0]['id']) }}">Example product page</a></p>
+
+<div>
+  <a href="#" id="view-cart">View Cart</a>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Orders (Admin)</h2>
+<table>
+  <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for o in orders %}
+    <tr>
+      <td>{{ o['id'] }}</td>
+      <td>{{ o['customer_name'] }}</td>
+      <td>{{ o['phone'] }}</td>
+      <td>{{ o['address'] }}</td>
+      <td>{{ o['items'] }}</td>
+      <td>{{ '%.2f'|format(o['total']) }}</td>
+      <td>{{ o['created_at'] }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
