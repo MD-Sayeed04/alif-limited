@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-lg shadow">
+  <h2 class="text-2xl font-semibold mb-6">Your Cart</h2>
+  <div id="cart-items" class="space-y-4">
+    <!-- Cart items will be dynamically loaded via JavaScript -->
+  </div>
+  <div class="flex justify-between items-center border-t mt-6 pt-4">
+    <p class="text-xl font-bold">Total: $<span id="cart-total">0.00</span></p>
+    <a href="{{ url_for('checkout') }}" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg">Proceed to Checkout</a>
+  </div>
+</section>
+{% endblock %}

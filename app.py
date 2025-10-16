@@ -77,5 +77,22 @@ def api_products():
     products = [dict(row) for row in cur.fetchall()]
     return jsonify(products)
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+if __name__ == "__main__":
+    app.run(debug=True)
+
+@app.route('/cart')
+def cart():
+    return render_template('cart.html')
+
+@app.route('/checkout')
+def checkout():
+    return render_template('checkout.html')
+
+@app.route('/submit_order', methods=['POST'])
+def submit_order():
+    name = request.form['name']
+    phone = request.form['phone']
+    address = request.form['address']
+    # (You can later save to DB or send email here)
+    return f"Thank you, {name}! Your order has been received."
+
