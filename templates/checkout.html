@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow">
+  <h2 class="text-2xl font-semibold mb-6">Customer Details</h2>
+  <form action="{{ url_for('submit_order') }}" method="POST" class="space-y-4">
+    <div>
+      <label class="block mb-2 font-medium">Full Name</label>
+      <input type="text" name="name" required class="w-full p-2 border rounded">
+    </div>
+    <div>
+      <label class="block mb-2 font-medium">Phone Number</label>
+      <input type="tel" name="phone" required class="w-full p-2 border rounded">
+    </div>
+    <div>
+      <label class="block mb-2 font-medium">Address</label>
+      <textarea name="address" required class="w-full p-2 border rounded"></textarea>
+    </div>
+    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">Place Order</button>
+  </form>
+</section>
+{% endblock %}
