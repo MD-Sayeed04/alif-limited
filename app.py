@@ -82,11 +82,18 @@ if __name__ == "__main__":
 
 @app.route('/cart')
 def cart():
-    return render_template('cart.html')
+    # Example: cart items (later connect to session or DB)
+    cart_items = []
+    return render_template('cart.html', cart_items=cart_items)
 
-@app.route('/checkout')
+
+@app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
+    if request.method == 'POST':
+        # Collect form data from user (name, address, phone, etc.)
+        pass
     return render_template('checkout.html')
+
 
 @app.route('/submit_order', methods=['POST'])
 def submit_order():
