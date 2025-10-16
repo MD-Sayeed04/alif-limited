@@ -1,105 +1,71 @@
-
-
-# app.py
-from flask import Flask, render_template, request, redirect, url_for, jsonify, g
-import sqlite3
-import json
+from flask import Flask, render_template, request, redirect, url_for, session
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'alif.db')
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'replace_this_with_env_secret'
+app.secret_key = "your_secret_key"  # Needed for cart session
 
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DB_PATH)
-        db.row_factory = sqlite3.Row
-    return db
+# Sample products (replace/add as needed)
+# Sample products in Taka
+products = [
+    {"id": 1, "name": "30 pcs Eggs", "description": "Farm-fresh eggs, full tray (30 pieces)", "price": 500.00},
+    {"id": 2, "name": "4 pcs Eggs", "description": "Small pack for daily use (4 pieces)", "price": 75.00},
+    {"id": 3, "name": "Milk - 10 Litres", "description": "Pure cow milk, bulk pack (10 litres)", "price": 750.00},
+    {"id": 4, "name": "Milk - 1 Litre", "description": "Fresh cow milk, 1 litre bottle", "price": 100.00},
+    {"id": 5, "name": "Duck (Per Piece)", "description": "Farm-raised duck, ready for cooking", "price": 600.00},
+]
 
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
+# Helper function to load gallery images from static/images/farm/
+def get_farm_images():
+    folder = 'static/images/farm'
+    if not os.path.exists(folder):
+        return []
+    files = os.listdir(folder)
+    return [f"farm/{f}" for f in files if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
 
+# Home page
 @app.route('/')
 def index():
-    db = get_db()
-    cur = db.execute('SELECT * FROM products')
-    products = cur.fetchall()
-    return render_template('index.html', products=products)
+    farm_images = get_farm_images()
+    return render_template('index.html', products=products, farm_images=farm_images)
 
+# Cart page
+@app.route('/cart')
+def cart():
+    cart_items = session.get('cart', [])
+    total = sum(item['price'] for item in cart_items)
+    return render_template('cart.html', cart_items=cart_items, total=total)
+
+# Add to cart (POST via AJAX or form)
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
+    # Get the product
+    product = next((p for p in products if p['id'] == product_id), None)
+    if product:
+        cart_items = session.get('cart', [])
+        cart_items.append(product)
+        session['cart'] = cart_items
+    return redirect(url_for('cart'))
+
+# Checkout page
+@app.route('/checkout', methods=['GET', 'POST'])
+def checkout():
+    cart_items = session.get('cart', [])
+    if request.method == 'POST':
+        name = request.form.get('name')
+        phone = request.form.get('phone')
+        address = request.form.get('address')
+        # Here you can process payment or save order to DB
+        session['cart'] = []  # Clear cart after checkout
+        return f"Thank you {name}! Your order has been submitted successfully."
+    return render_template('checkout.html', cart_items=cart_items)
+
+# Example product detail page
 @app.route('/product/<int:id>')
 def product(id):
-    db = get_db()
-    cur = db.execute('SELECT * FROM products WHERE id=?', (id,))
-    product = cur.fetchone()
-    if not product:
+    product_item = next((p for p in products if p['id'] == id), None)
+    if not product_item:
         return "Product not found", 404
-    return render_template('products.html', product=product)
-
-@app.route('/order', methods=['POST'])
-def order():
-    data = request.json or request.form
-    name = data.get('name')
-    phone = data.get('phone')
-    address = data.get('address')
-    items = data.get('items')  # expecting JSON string or array
-    total = float(data.get('total', 0))
-
-    if isinstance(items, str):
-        items_json = items
-    else:
-        items_json = json.dumps(items)
-
-    db = get_db()
-    db.execute('INSERT INTO orders (customer_name, phone, address, items, total) VALUES (?, ?, ?, ?, ?)',
-               (name, phone, address, items_json, total))
-    db.commit()
-
-    return jsonify({'status': 'ok', 'message': 'Order received'}), 201
-
-@app.route('/admin')
-def admin():
-    # VERY simple admin: no auth for demo. Add auth in production.
-    db = get_db()
-    cur = db.execute('SELECT * FROM orders ORDER BY created_at DESC')
-    orders = cur.fetchall()
-    return render_template('admin.html', orders=orders)
-
-# Simple API to get products as JSON (used by frontend)
-@app.route('/api/products')
-def api_products():
-    db = get_db()
-    cur = db.execute('SELECT * FROM products')
-    products = [dict(row) for row in cur.fetchall()]
-    return jsonify(products)
+    return render_template('product.html', product=product_item)
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-@app.route('/cart')
-def cart():
-    # Example: cart items (later connect to session or DB)
-    cart_items = []
-    return render_template('cart.html', cart_items=cart_items)
-
-
-@app.route('/checkout', methods=['GET', 'POST'])
-def checkout():
-    if request.method == 'POST':
-        # Collect form data from user (name, address, phone, etc.)
-        pass
-    return render_template('checkout.html')
-
-
-@app.route('/submit_order', methods=['POST'])
-def submit_order():
-    name = request.form['name']
-    phone = request.form['phone']
-    address = request.form['address']
-    # (You can later save to DB or send email here)
-    return f"Thank you, {name}! Your order has been received."
-

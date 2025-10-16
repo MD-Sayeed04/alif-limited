@@ -9,9 +9,9 @@
 <div id="products" class="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 p-8">
   {% for p in products %}
     <div class="bg-white shadow rounded-2xl p-6 text-center hover:shadow-lg transition">
-      <h3 class="text-xl font-semibold mb-2 text-gray-800">{{ p['name'] }}</h3>
-      <p class="text-gray-600 mb-4">{{ p['description'] }}</p>
-      <p class="font-bold text-blue-600 mb-4">Price: ${{ '%.2f'|format(p['price']) }}</p>
+      <h3 class="text-xl font-semibold mb-2 text-blue-800">{{ p['name'] }}</h3>
+      <p class="text-blue-600 mb-4">{{ p['description'] }}</p>
+      <p class="font-bold text-blue-600 mb-4">Price: ৳{{ '%.2f'|format(p['price']) }}</p>
       <button class="add-to-cart bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Add to cart</button>
     </div>
   {% endfor %}
